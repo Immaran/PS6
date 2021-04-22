@@ -67,6 +67,11 @@ function goDown(id){
     }
 }
 
+function deleteFunc(id){
+    items.splice(id,1);
+    refresh();
+}
+
 function add(id, quantity){
     let table = document.getElementById("table");
     
@@ -90,7 +95,7 @@ function add(id, quantity){
     tr += "<td>"+items[i].getProductPrice()+"</td>";
     tr += "<td>"+items[i].getSum()+"</td>";
     tr += "<td><button>edit</button></td>"
-    tr += "<td><button>delete</button></td>"
+    tr += "<td><button id=\"" + i + "\" onclick=\"deleteFunc(this.id)\">delete</button>"
     tr += "</tr>";  
     
     table.innerHTML += tr;
@@ -121,7 +126,7 @@ function refresh(){
         tr += "<td>"+items[i].getProductPrice()+"</td>";
         tr += "<td>"+items[i].getSum()+"</td>";
         tr += "<td><button>edit</button></td>"
-        tr += "<td><button>delete</button></td>"
+        tr += "<td><button id=\"" + i + "\" onclick=\"deleteFunc(this.id)\">delete</button>"
         tr += "</tr>";  
         
         table.innerHTML += tr;
