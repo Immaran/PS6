@@ -26,7 +26,6 @@ class item{
     constructor(product, quantity){
         this.product = product;
         this.quantity = quantity;
-        //this.sum = 0;
         this.sum = product.price * quantity;
     }
 
@@ -39,29 +38,26 @@ class item{
     setProductName(name){
         this.product.setName(name);
     }
-    getProductId() {
+    getProductId(){
         return this.product.getId()
     }
-    getProductPrice() {
+    getProductPrice(){
         return this.product.getPrice()
     }
     setProductPrice(price){
         this.product.setPrice(price)
         this.sum = this.product.price * this.quantity;
     }
-    getQuantity() {
+    getQuantity(){
         return this.quantity
     }
     setQuantity(quantity){
         this.quantity = quantity;
         this.sum = this.product.price * this.quantity;
     }
-    getSum() {
+    getSum(){
         return this.sum;
     }
-    /*setSum(sum){
-        this.sum = sum;
-    }*/
 }
 
 function pretty_price(price){
@@ -117,8 +113,7 @@ function editFunc(id){
     for(let i = 0; i < items.length; i++){
         if(i == id){
             tr = "<tr>";
-            tr += "<td><button id=\"" + i + "\" onclick=\"goUp(this.id)\">/\\</button><br>" +
-                    "<button id=\"" + i + "\" onclick=\"goDown(this.id)\">\\/</button></td>"
+            tr += "<td><button id=\"" + i + "\" onclick=\"goUp(this.id)\">/\\</button><br><button id=\"" + i + "\" onclick=\"goDown(this.id)\">\\/</button></td>"
             tr += "<td>" + items[i].getProductId() + "</td>";
             tr += "<td><input type=\"text\" id=\"edited_name\" value=\"" + items[i].product.getName() + "\"></input></td>";
             tr += "<td><input type=\"number\" id=\"edited_quantity\" class=\"editedNumber\" value=\"" + items[i].getQuantity() + "\"></input></td>";
@@ -129,17 +124,7 @@ function editFunc(id){
             tr += "</tr>"; 
         }
         else{
-            tr = "<tr>";
-            tr += "<td><button id=\"" + i + "\" onclick=\"goUp(this.id)\">/\\</button><br>" +
-                    "<button id=\"" + i + "\" onclick=\"goDown(this.id)\">\\/</button></td>"
-            tr += "<td>"+items[i].getProductId()+"</td>";
-            tr += "<td>"+items[i].getProductName()+"</td>";
-            tr += "<td>"+items[i].getQuantity()+"</td>";
-            tr += "<td>"+items[i].getProductPrice()+"</td>";
-            tr += "<td>"+items[i].getSum()+"</td>";
-            tr += "<td><button id=\"" + i + "\" onclick=\"editFunc(this.id)\">edit</button>"
-            tr += "<td><button id=\"" + i + "\" onclick=\"deleteFunc(this.id)\">delete</button>"
-            tr += "</tr>"; 
+            tr = generateRow(i); 
         }
         
         table.innerHTML += tr;
@@ -150,8 +135,8 @@ function add(id, quantity){
     let table = document.getElementById("table");
     
     let itemIndex = items.findIndex(x => x.getProductId() == id);
+
     if(itemIndex===-1){
-        console.log("weszło")
         products.forEach(p=>{
             if(p.id == id) items.push(new item(p, quantity));
         })
@@ -162,26 +147,60 @@ function add(id, quantity){
         let sumFloat = parseFloat(sum.innerText);
         sumFloat += items[i].getSum();
         sum.innerHTML = sumFloat;
-    
-        let tr = "<tr>";
-        tr += "<td><button id=\"" + i + "\" onclick=\"goUp(this.id)\">/\\</button><br>" +
-                  "<button id=\"" + i + "\" onclick=\"goDown(this.id)\">\\/</button></td>"
-        tr += "<td>"+items[i].getProductId()+"</td>";
-        tr += "<td>"+items[i].getProductName()+"</td>";
-        tr += "<td>"+items[i].getQuantity()+"</td>";
-        tr += "<td>"+items[i].getProductPrice()+"</td>";
-        tr += "<td>"+items[i].getSum()+"</td>";
-        tr += "<td><button id=\"" + i + "\" onclick=\"editFunc(this.id)\">edit</button>"
-        tr += "<td><button id=\"" + i + "\" onclick=\"deleteFunc(this.id)\">delete</button>"
-        tr += "</tr>";
         
-        table.innerHTML += tr;
+        table.innerHTML += generateRow(i);
     }
-    else { //jeśli taki produkt już jest na paragonie
+    else {
         items[itemIndex].setQuantity(parseInt(items[itemIndex].getQuantity())+quantity);
+        let index = document.getElementById("select").selectedIndex;
         refresh();
+        document.getElementById("select").selectedIndex = index;
+    }
+
+    toLocal();
+}
+
+function generateRow(i){
+    tr = "<tr>";
+    tr += "<td><button id=\"" + i + "\" onclick=\"goUp(this.id)\">/\\</button><br><button id=\"" + i + "\" onclick=\"goDown(this.id)\">\\/</button></td>"
+    tr += "<td>"+items[i].getProductId()+"</td>";
+    tr += "<td>"+items[i].getProductName()+"</td>";
+    tr += "<td>"+items[i].getQuantity()+"</td>";
+    tr += "<td>"+items[i].getProductPrice()+"</td>";
+    tr += "<td>"+items[i].getSum()+"</td>";
+    tr += "<td><button id=\"" + i + "\" onclick=\"editFunc(this.id)\">edit</button>"
+    tr += "<td><button id=\"" + i + "\" onclick=\"deleteFunc(this.id)\">delete</button>"
+    tr += "</tr>";
+    return tr;
+}
+
+function toLocal(){
+    localStorage.setItem("products", JSON.stringify(products));
+    localStorage.setItem("items", JSON.stringify(items));
+}
+
+function fromLocal(){
+    let storedProducts = JSON.parse(localStorage.getItem("products"));
+    let storedItems = JSON.parse(localStorage.getItem("items"));
+    
+    items = [];
+    products = []
+
+    if(storedProducts != null){
+        for (let i = 0; i < storedProducts.length; i++){
+            let newProduct = new product(storedProducts[i].id,storedProducts[i].name,storedProducts[i].price)
+            products.push(newProduct);
+        }
+    }
+    if(storedItems != null){
+        for (let i = 0; i < storedItems.length; i++){
+            let newProduct = new product(storedItems[i].product.id,storedItems[i].product.name,storedItems[i].product.price)
+            let newItem = new item(newProduct, storedItems[i].quantity)
+            items.push(newItem);
+        }
     }
 }
+
 function refresh(){
     let select = document.getElementById("select");
     select.innerHTML = '';
@@ -204,26 +223,14 @@ function refresh(){
     let sumFloat = 0;
 
     for(let i = 0; i < items.length; i++){
-        tr = "<tr>";
-        tr += "<td><button id=\"" + i + "\" onclick=\"goUp(this.id)\">/\\</button><br>" +
-                  "<button id=\"" + i + "\" onclick=\"goDown(this.id)\">\\/</button></td>"
-        tr += "<td>"+items[i].getProductId()+"</td>";
-        tr += "<td>"+items[i].getProductName()+"</td>";
-        tr += "<td>"+items[i].getQuantity()+"</td>";
-        tr += "<td>"+items[i].getProductPrice()+"</td>";
-        tr += "<td>"+items[i].getSum()+"</td>";
-        tr += "<td><button id=\"" + i + "\" onclick=\"editFunc(this.id)\">edit</button>"
-        tr += "<td><button id=\"" + i + "\" onclick=\"deleteFunc(this.id)\">delete</button>"
-        tr += "</tr>";
-
         sumFloat += items[i].getSum();
         
-        table.innerHTML += tr;
+        table.innerHTML += generateRow(i);
     };
 
     sum.innerHTML = sumFloat;
-
-    //localStorage.setItem("items", JSON.stringify(items));
+    
+    toLocal();
 }
 
 function add_click(){
@@ -237,7 +244,14 @@ function add_click(){
 }
 
 function new_click(){
-    let id = products[products.length - 1].id + 1;
+    let id;
+    if(products.length == 0){
+        id = 0
+    }
+    else{
+        let id = products[products.length - 1].id + 1;
+    }
+
     let name_input = document.getElementById("name");
     let price_input = document.getElementById("price");
 
@@ -254,25 +268,25 @@ function new_click(){
 
 let products = [];
 let items = [];
-//let storedItems = JSON.parse(localStorage.getItem("items"));
-//if (storedItems!==null)
-    //console.log("1")
-   // items = storedItems;
 
-let id = 0;
+fromLocal(); //odzysk listy na starcie programu
 
-products.push(new product(id++, "Pomidor czerwony", 8));
-products.push(new product(id++, "Pomidor pomarańczowy", 14));
-products.push(new product(id++, "Pomidor zółty", 9));
-products.push(new product(id++, "Pomidor zielony", 23));
-products.push(new product(id++, "Pomidor czarny", 34));
-products.push(new product(id++, "Pomidor malinowy", 18));
-products.push(new product(id++, "Pomidor paprykowy", 21));
-products.push(new product(id++, "Pomidor koktajlowy", 28));
-products.push(new product(id++, "Pomidor polny", 5));
-products.push(new product(id++, "Pomidor rzymski", 10));
-products.push(new product(id++, "Pomidor bawole serce", 22));
-products.push(new product(id++, "Pomidor gargamel", 17));
+let id = products.length;
+
+if(products.length == 0){
+    // products.push(new product(id++, "Pomidor czerwony", 8));
+    // products.push(new product(id++, "Pomidor pomarańczowy", 14));
+    // products.push(new product(id++, "Pomidor zółty", 9));
+    // products.push(new product(id++, "Pomidor zielony", 23));
+    // products.push(new product(id++, "Pomidor czarny", 34));
+    // products.push(new product(id++, "Pomidor malinowy", 18));
+    // products.push(new product(id++, "Pomidor paprykowy", 21));
+    // products.push(new product(id++, "Pomidor koktajlowy", 28));
+    // products.push(new product(id++, "Pomidor polny", 5));
+    // products.push(new product(id++, "Pomidor rzymski", 10));
+    // products.push(new product(id++, "Pomidor bawole serce", 22));
+    // products.push(new product(id++, "Pomidor gargamel", 17));
+}
 
 refresh();
 
