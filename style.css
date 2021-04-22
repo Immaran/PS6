@@ -39,6 +39,9 @@ td{
     border-collapse: separate;
     border-spacing: 0px 8px;
 } */
+.editedNumber{
+    width: 54px;
+}
 .footer{
     height: 100%;
     width: 100%;
