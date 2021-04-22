@@ -149,7 +149,9 @@ function editFunc(id){
 function add(id, quantity){
     let table = document.getElementById("table");
     
-    if(items.find(x => x.product.getId() == id) == undefined){
+    let itemIndex = items.findIndex(x => x.getProductId() == id);
+    if(itemIndex===-1){
+        console.log("weszło")
         products.forEach(p=>{
             if(p.id == id) items.push(new item(p, quantity));
         })
@@ -175,8 +177,11 @@ function add(id, quantity){
         
         table.innerHTML += tr;
     }
+    else { //jeśli taki produkt już jest na paragonie
+        items[itemIndex].setQuantity(parseInt(items[itemIndex].getQuantity())+quantity);
+        refresh();
+    }
 }
-
 function refresh(){
     let select = document.getElementById("select");
     select.innerHTML = '';
@@ -218,7 +223,7 @@ function refresh(){
 
     sum.innerHTML = sumFloat;
 
-    localStorage.setItem("items", JSON.stringify(items));
+    //localStorage.setItem("items", JSON.stringify(items));
 }
 
 function add_click(){
@@ -249,10 +254,10 @@ function new_click(){
 
 let products = [];
 let items = [];
-let storedItems = JSON.parse(localStorage.getItem("items"));
-if (storedItems!==null)
+//let storedItems = JSON.parse(localStorage.getItem("items"));
+//if (storedItems!==null)
     //console.log("1")
-    items = storedItems;
+   // items = storedItems;
 
 let id = 0;
 
