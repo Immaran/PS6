@@ -103,7 +103,7 @@ function refresh(){
     products.forEach(element => {
         let option = document.createElement("option");
         option.id = element.id;
-        option.appendChild(document.createTextNode(element.name));
+        option.appendChild(document.createTextNode(element.name + " (" + element.price + "DOGE/kg)"));
 
         select.appendChild(option);
     });
